@@ -2,882 +2,1522 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#080b10">
-<title>Scooter Control</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Scooter BLE Dashboard</title>
+
 <style>
-*{box-sizing:border-box}
-body{
- margin:0;
- background:#080b10;
- color:#f4f7fb;
- font-family:Arial,sans-serif;
- padding-bottom:80px
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
-header{
- position:sticky;top:0;z-index:10;
- background:#0d1219;
- border-bottom:1px solid #202936;
- padding:16px
+
+body {
+    margin: 0;
+    background: #0b0d12;
+    color: #f4f5f7;
+    font-family: Arial, sans-serif;
 }
-h1{margin:0;font-size:21px}
-.small{color:#8995a5;font-size:12px;margin-top:5px}
-main{max-width:900px;margin:auto;padding:14px}
-.page{display:none}
-.page.active{display:block}
-.grid{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px
+
+header {
+    padding: 18px 16px;
+    background: #12151d;
+    border-bottom: 1px solid #272b35;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
-.card{
- background:#10161f;
- border:1px solid #202936;
- border-radius:17px;
- padding:16px;
- margin-bottom:10px
+
+h1 {
+    margin: 0;
+    font-size: 23px;
 }
-.label{color:#8f9baa;font-size:12px;margin-bottom:8px}
-.big{font-size:28px;font-weight:bold}
-h2{font-size:18px;margin:8px 0 13px}
-button{
- width:100%;
- border:0;
- border-radius:12px;
- padding:13px;
- margin:4px 0;
- background:#287bea;
- color:#fff;
- font-weight:bold;
- font-size:14px
+
+.sub {
+    margin-top: 5px;
+    color: #9da4b2;
+    font-size: 13px;
 }
-button.gray{background:#242d39}
-button.red{background:#a93535}
-button.green{background:#218c57}
-button:disabled{opacity:.45}
-input,select{
- width:100%;
- padding:12px;
- border-radius:10px;
- border:1px solid #303b49;
- background:#0b1016;
- color:#fff
+
+nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 10px;
+    background: #10131a;
+    position: sticky;
+    top: 77px;
+    z-index: 9;
 }
-.status{
- padding:13px;
- border-radius:13px;
- background:#10161f;
- border:1px solid #202936;
- margin-bottom:12px
+
+nav button {
+    border: 0;
+    border-radius: 12px;
+    padding: 11px 14px;
+    background: #202530;
+    color: white;
+    white-space: nowrap;
+    font-weight: bold;
 }
-.dot{
- display:inline-block;
- width:9px;height:9px;
- border-radius:50%;
- background:#777;
- margin-right:7px
+
+nav button.active {
+    background: #4f7cff;
 }
-.dot.on{background:#31c77b}
-.nav{
- position:fixed;
- bottom:0;left:0;right:0;
- height:68px;
- background:#0d1219;
- border-top:1px solid #202936;
- display:flex;
- z-index:20
+
+main {
+    padding: 14px;
+    max-width: 700px;
+    margin: auto;
 }
-.nav button{
- margin:0;
- border-radius:0;
- background:transparent;
- color:#8995a5;
- font-size:11px
+
+.page {
+    display: none;
 }
-.nav button.active{color:#fff;background:#151c26}
-.service{
- background:#10161f;
- border:1px solid #202936;
- border-radius:14px;
- padding:13px;
- margin-bottom:10px
+
+.page.active {
+    display: block;
 }
-.uuid{
- font-family:monospace;
- color:#79adff;
- font-size:11px;
- word-break:break-all;
- margin-top:5px
+
+.card {
+    background: #151922;
+    border: 1px solid #292e39;
+    border-radius: 17px;
+    padding: 16px;
+    margin-bottom: 13px;
 }
-.char{
- margin-top:9px;
- background:#080c11;
- border-radius:10px;
- padding:10px
+
+.card h2 {
+    margin: 0 0 12px;
+    font-size: 18px;
 }
-.log{
- height:230px;
- overflow:auto;
- background:#030508;
- border:1px solid #202936;
- border-radius:12px;
- padding:10px;
- font:11px monospace;
- white-space:pre-wrap
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 12px;
 }
-.notice{
- background:#172437;
- border:1px solid #29425e;
- padding:12px;
- border-radius:12px;
- color:#c9dcf3;
- font-size:12px;
- line-height:1.5;
- margin-bottom:12px
+
+.dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #777;
 }
-.row{
- display:flex;
- gap:8px
+
+.dot.on {
+    background: #39d98a;
 }
-.row>*{flex:1}
+
+button.action {
+    width: 100%;
+    border: 0;
+    border-radius: 13px;
+    padding: 14px;
+    margin-top: 8px;
+    background: #4f7cff;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+button.secondary {
+    background: #252a35;
+}
+
+button.danger {
+    background: #7c3038;
+}
+
+button:disabled {
+    opacity: .45;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.stat {
+    background: #10131a;
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.stat-title {
+    color: #9299a7;
+    font-size: 12px;
+}
+
+.stat-value {
+    margin-top: 5px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.char {
+    border: 1px solid #303541;
+    background: #10131a;
+    border-radius: 15px;
+    padding: 13px;
+    margin-top: 10px;
+}
+
+.char-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.uuid {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.properties {
+    color: #9ba2b0;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.value {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #080a0e;
+    color: #b9c7ff;
+    font-family: monospace;
+    font-size: 12px;
+    word-break: break-all;
+    min-height: 20px;
+}
+
+.char-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 9px;
+}
+
+.char-buttons button {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px;
+    color: white;
+    background: #282e3a;
+    font-weight: bold;
+}
+
+.char-buttons button.notify {
+    background: #315f4d;
+}
+
+.log {
+    background: #07090c;
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 180px;
+    max-height: 420px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 11px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.small {
+    color: #9299a7;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+input {
+    width: 100%;
+    background: #0c0f14;
+    color: white;
+    border: 1px solid #303541;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 7px;
+}
+
+.copy-ok {
+    color: #43e59a;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
 </style>
 </head>
+
 <body>
+
 <header>
- <h1>🛴 Scooter Control</h1>
- <div class="small" id="headerStatus">Nicht verbunden</div>
+    <h1>🛴 Scooter BLE</h1>
+    <div class="sub">FE95 Diagnose & Characteristic Explorer</div>
 </header>
+
+<nav>
+    <button class="tab active" data-page="dashboard">Dashboard</button>
+    <button class="tab" data-page="ble">BLE</button>
+    <button class="tab" data-page="settings">Einstellungen</button>
+    <button class="tab" data-page="logs">Log</button>
+</nav>
+
 <main>
+
 <!-- DASHBOARD -->
-<div class="page active" id="dashboard">
- <div class="status">
-  <span class="dot" id="dot"></span>
-  <strong id="connection">Offline</strong>
-  <div class="small" id="device">Kein Scooter verbunden</div>
- </div>
- <button id="connect">🔵 Scooter verbinden</button>
- <button id="disconnect" class="gray" disabled>Trennen</button>
- <h2>Dashboard</h2>
- <div class="grid">
-  <div class="card">
-   <div class="label">Geschwindigkeit</div>
-   <div class="big" id="speed">-- km/h</div>
-  </div>
-  <div class="card">
-   <div class="label">Akku</div>
-   <div class="big" id="battery">-- %</div>
-  </div>
-  <div class="card">
-   <div class="label">Reichweite</div>
-   <div class="big" id="range">-- km</div>
-  </div>
-  <div class="card">
-   <div class="label">Fahrmodus</div>
-   <div class="big" id="mode">--</div>
-  </div>
- </div>
- <div class="card">
-  <div class="label">Fahrtdauer</div>
-  <div class="big" id="rideTime">00:00</div>
- </div>
- <div class="card">
-  <div class="label">Strecke</div>
-  <div class="big" id="distance">0.00 km</div>
- </div>
-</div>
-<!-- FAHREN -->
-<div class="page" id="ride">
- <h2>Fahren</h2>
- <div class="card">
-  <div class="label">Live-Geschwindigkeit</div>
-  <div class="big" id="rideSpeed">-- km/h</div>
- </div>
- <div class="grid">
-  <div class="card">
-   <div class="label">Fahrtdauer</div>
-   <div class="big" id="rideTimer">00:00</div>
-  </div>
-  <div class="card">
-   <div class="label">Strecke</div>
-   <div class="big" id="rideDistance">0.00 km</div>
-  </div>
- </div>
- <button class="green" onclick="startRide()">▶ Fahrt starten</button>
- <button class="gray" onclick="stopRide()">■ Fahrt beenden</button>
-</div>
-<!-- SCOOTER -->
-<div class="page" id="scooter">
- <h2>Scooter</h2>
- <div class="card">
-  <div class="label">Fahrmodus</div>
-  <select id="modeSelect" onchange="saveSettings()">
-   <option>Standard</option>
-   <option>Sport</option>
-   <option>Eco</option>
-  </select>
-  <div class="small">
-   Der ausgewählte Modus wird lokal gespeichert.
-   Die tatsächliche BLE-Umschaltung erfolgt erst,
-   wenn das passende Characteristic-Protokoll bekannt ist.
-  </div>
- </div>
- <div class="card">
-  <div class="label">Licht</div>
-  <button class="gray" onclick="localFeature('Licht')">
-   💡 Licht
-  </button>
- </div>
- <div class="card">
-  <div class="label">Energierückgewinnung</div>
-  <select id="regenSelect" onchange="saveSettings()">
-   <option>Niedrig</option>
-   <option>Mittel</option>
-   <option>Hoch</option>
-  </select>
-  <div class="small">
-   Einstellung wird gespeichert.
-  </div>
- </div>
- <div class="card">
-  <div class="label">Motorsperre</div>
-  <div class="small">
-   Status wird angezeigt, sobald das entsprechende
-   Scooter-Characteristic identifiziert wurde.
-  </div>
- </div>
-</div>
-<!-- DIAGNOSE -->
-<div class="page" id="diagnose">
- <h2>Diagnose</h2>
- <div class="grid">
-  <div class="card">
-   <div class="label">BLE</div>
-   <div class="big" id="bleState">Offline</div>
-  </div>
-  <div class="card">
-   <div class="label">Services</div>
-   <div class="big" id="serviceCount">0</div>
-  </div>
- </div>
- <button class="gray" onclick="discover()">🔍 Services scannen</button>
- <div id="services">
-  Noch keine Services.
- </div>
-</div>
-<!-- EINSTELLUNGEN -->
-<div class="page" id="settings">
- <h2>Einstellungen</h2>
- <div class="card">
-  <div class="label">Dashboard-Einheit</div>
-  <select id="unit" onchange="saveSettings()">
-   <option value="km">km / km/h</option>
-   <option value="mi">mi / mph</option>
-  </select>
- </div>
- <div class="card">
-  <div class="label">Automatische Wiederverbindung</div>
-  <select id="autoReconnect" onchange="saveSettings()">
-   <option value="yes">Ein</option>
-   <option value="no">Aus</option>
-  </select>
- </div>
- <button class="gray" onclick="clearSettings()">
-  Einstellungen zurücksetzen
- </button>
-</div>
+
+<section id="dashboard" class="page active">
+
+    <div class="card">
+
+        <div class="status">
+            <span id="statusDot" class="dot"></span>
+            <strong id="statusText">Nicht verbunden</strong>
+        </div>
+
+        <button class="action" id="connectBtn">
+            🔵 Scooter verbinden
+        </button>
+
+        <button class="action secondary" id="disconnectBtn" disabled>
+            🔌 Trennen
+        </button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Live-Daten</h2>
+
+        <div class="grid">
+
+            <div class="stat">
+                <div class="stat-title">Geschwindigkeit</div>
+                <div class="stat-value" id="speed">-- km/h</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Batterie</div>
+                <div class="stat-value" id="battery">-- %</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Reichweite</div>
+                <div class="stat-value" id="range">-- km</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Fahrzeit</div>
+                <div class="stat-value" id="rideTime">--</div>
+            </div>
+
+        </div>
+
+        <p class="small">
+            Die Live-Werte werden automatisch angezeigt, sobald wir
+            die Datenstruktur der Notifications identifiziert haben.
+        </p>
+
+    </div>
+
+</section>
+
+
 <!-- BLE -->
-<div class="page" id="ble">
- <h2>BLE</h2>
- <div class="notice">
-  Hier siehst du die echten BLE-Daten des Scooters.
-  Lesen und Notifications sind verfügbar, sofern der
-  Scooter sie anbietet.
- </div>
- <div class="log" id="log"></div>
-</div>
+
+<section id="ble" class="page">
+
+    <div class="card">
+
+        <h2>🔎 BLE-Gerät</h2>
+
+        <div class="small">
+            Bekannter Service:
+            <strong>FE95</strong>
+        </div>
+
+        <div id="deviceName" class="small" style="margin-top:8px;">
+            Kein Gerät verbunden
+        </div>
+
+        <button class="action" id="scanBtn">
+            🔵 Gerät auswählen
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>FE95 Characteristics</h2>
+
+        <button class="action secondary" id="readAllBtn">
+            📖 Alle lesbaren Werte lesen
+        </button>
+
+        <button class="action secondary" id="copyAllBtn">
+            📋 Alles kopieren
+        </button>
+
+        <button class="action secondary" id="copyJsonBtn">
+            📋 Rohdaten als JSON kopieren
+        </button>
+
+        <div id="characteristics">
+            <p class="small">
+                Noch keine Characteristics geladen.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- SETTINGS -->
+
+<section id="settings" class="page">
+
+    <div class="card">
+
+        <h2>⚙️ BLE-Einstellungen</h2>
+
+        <p class="small">
+            Diese Seite zeigt die vom Scooter gemeldeten BLE-Funktionen.
+            Noch unbekannte Steuerbefehle werden absichtlich nicht automatisch
+            gesendet.
+        </p>
+
+        <button class="action secondary" id="refreshBtn">
+            🔄 Characteristics neu laden
+        </button>
+
+        <button class="action secondary" id="notificationsBtn">
+            🔔 Alle Notifications aktivieren
+        </button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Bekannte Struktur</h2>
+
+        <div id="knownList"></div>
+
+    </div>
+
+</section>
+
+
+<!-- LOG -->
+
+<section id="logs" class="page">
+
+    <div class="card">
+
+        <h2>📋 Diagnose-Log</h2>
+
+        <button class="action secondary" id="copyLogBtn">
+            📋 Log kopieren
+        </button>
+
+        <button class="action danger" id="clearLogBtn">
+            🗑 Log löschen
+        </button>
+
+        <div id="log" class="log"></div>
+
+    </div>
+
+</section>
+
 </main>
-<!-- NAVIGATION -->
-<div class="nav">
- <button onclick="page('dashboard')" id="n-dashboard" class="active">
-  🏠<br>Dashboard
- </button>
- <button onclick="page('ride')" id="n-ride">
-  🛴<br>Fahren
- </button>
- <button onclick="page('scooter')" id="n-scooter">
-  ⚙️<br>Scooter
- </button>
- <button onclick="page('diagnose')" id="n-diagnose">
-  🔧<br>Diagnose
- </button>
- <button onclick="page('settings')" id="n-settings">
-  ⚙️<br>Einstellungen
- </button>
- <button onclick="page('ble')" id="n-ble">
-  📡<br>BLE
- </button>
-</div>
+
+
 <script>
+
 "use strict";
+
+/* =========================
+   GLOBALS
+========================= */
+
 let device = null;
 let server = null;
-let rideRunning = false;
-let rideStart = 0;
-let rideInterval = null;
-let rideSeconds = 0;
-/* ================================
- NAVIGATION
-================================ */
-function page(name){
- document.querySelectorAll(".page")
- .forEach(x => x.classList.remove("active"));
- document.getElementById(name)
- .classList.add("active");
- document.querySelectorAll(".nav button")
- .forEach(x => x.classList.remove("active"));
- const nav =
- document.getElementById("n-"+name);
- if(nav) nav.classList.add("active");
-}
-/* ================================
- LOG
-================================ */
-function log(text){
- const el =
- document.getElementById("log");
- const time =
- new Date().toLocaleTimeString();
- el.textContent +=
- "["+time+"] "+text+"\n";
- el.scrollTop =
- el.scrollHeight;
- console.log(text);
-}
-/* ================================
- CONNECT
-================================ */
-async function connectScooter(){
- if(!navigator.bluetooth){
-  alert(
-   "Web Bluetooth wird in diesem Browser nicht unterstützt."
-  );
-  return;
- }
- try{
-  log("Suche nach BLE-Geräten...");
-  device =
-   await navigator.bluetooth.requestDevice({
-    acceptAllDevices:true,
-    optionalServices:[
-     "fe95"
-    ]
-   });
-  document.getElementById("device")
-  .textContent =
-   device.name || "Unbekanntes Gerät";
-  log(
-   "Gerät ausgewählt: "+
-   (device.name || "Unbekannt")
-  );
-  device.addEventListener(
-   "gattserverdisconnected",
-   disconnected
-  );
-  log("Verbinde GATT...");
-  server =
-   await device.gatt.connect();
-  log("GATT verbunden.");
-  setConnected(true);
-  await discover();
- }catch(e){
-  log(
-   "Verbindungsfehler: "+
-   e.message
-  );
- }
-}
-/* ================================
- CONNECTED
-================================ */
-function setConnected(state){
- const dot =
- document.getElementById("dot");
- const connection =
- document.getElementById("connection");
- const header =
- document.getElementById("headerStatus");
- const ble =
- document.getElementById("bleState");
- const connect =
- document.getElementById("connect");
- const disconnect =
- document.getElementById("disconnect");
- if(state){
-  dot.classList.add("on");
-  connection.textContent =
-   "Verbunden";
-  header.textContent =
-   "BLE verbunden";
-  ble.textContent =
-   "Online";
-  connect.disabled = true;
-  disconnect.disabled = false;
- }else{
-  dot.classList.remove("on");
-  connection.textContent =
-   "Offline";
-  header.textContent =
-   "Nicht verbunden";
-  ble.textContent =
-   "Offline";
-  connect.disabled = false;
-  disconnect.disabled = true;
- }
-}
-/* ================================
- DISCONNECT
-================================ */
-function disconnect(){
- if(
-  device &&
-  device.gatt &&
-  device.gatt.connected
- ){
-  device.gatt.disconnect();
- }
- setConnected(false);
- log("Getrennt.");
-}
-function disconnected(){
- setConnected(false);
- log("Scooter wurde getrennt.");
-}
-/* ================================
- BLE DISCOVERY
-================================ */
-async function discover(){
- if(!server){
-  log("Kein GATT-Server.");
-  return;
- }
- const container =
- document.getElementById("services");
- container.innerHTML = "";
- let count = 0;
- try{
-  const services =
-   await server.getPrimaryServices();
-  /*
-   KEINE SPREAD-SYNTAX.
-  */
-  if(
-   services &&
-   typeof services.length === "number"
-  ){
-   count = services.length;
-   for(
-    let i=0;
-    i<services.length;
-    i++
-   ){
-    await inspectService(
-     services[i],
-     container
-    );
-   }
-  }else{
-   /*
-    Fallback für iterable Ergebnisse.
-   */
-   for(
-    const service of services
-   ){
-    count++;
-    await inspectService(
-     service,
-     container
-    );
-   }
-  }
-  document.getElementById(
-   "serviceCount"
-  ).textContent = count;
-  log(
-   "Services gefunden: "+count
-  );
- }catch(e){
-  log(
-   "Service-Fehler: "+
-   e.message
-  );
-  container.innerHTML =
-   "<div class='notice'>"+
-   e.message+
-   "</div>";
- }
-}
-/* ================================
- SERVICE
-================================ */
-async function inspectService(
- service,
- container
-){
- const box =
- document.createElement("div");
- box.className =
- "service";
- box.innerHTML =
- "<strong>Service</strong>"+
- "<div class='uuid'>"+
- escapeHtml(service.uuid)+
- "</div>"+
- "<div class='chars'>"+
- "Characteristics werden geladen..."+
- "</div>";
- container.appendChild(box);
- const chars =
- box.querySelector(".chars");
- try{
-  const result =
-   await service.getCharacteristics();
-  chars.innerHTML = "";
-  /*
-   Wichtig:
-   Kein [...result]
-  */
-  if(
-   result &&
-   typeof result.length === "number"
-  ){
-   for(
-    let i=0;
-    i<result.length;
-    i++
-   ){
-    renderCharacteristic(
-     result[i],
-     chars
-    );
-   }
-  }else{
-   for(
-    const characteristic of result
-   ){
-    renderCharacteristic(
-     characteristic,
-     chars
-    );
-   }
-  }
- }catch(e){
-  log(
-   "Characteristics nicht lesbar: "+
-   e.message
-  );
-  chars.innerHTML =
-   "<div style='color:#ff7777'>"+
-   "Characteristics nicht lesbar:<br>"+
-   escapeHtml(e.message)+
-   "</div>";
- }
-}
-/* ================================
- CHARACTERISTIC
-================================ */
-function renderCharacteristic(
- characteristic,
- container
-){
- if(!characteristic) return;
- const box =
- document.createElement("div");
- box.className =
- "char";
- const props =
- characteristic.properties || {};
- let propertyText = "";
- if(props.read)
-  propertyText += "READ ";
- if(props.write)
-  propertyText += "WRITE ";
- if(props.writeWithoutResponse)
-  propertyText += "WRITE_NO_RESPONSE ";
- if(props.notify)
-  propertyText += "NOTIFY ";
- if(props.indicate)
-  propertyText += "INDICATE ";
- box.innerHTML =
- "<strong>Characteristic</strong>"+
- "<div class='uuid'>"+
- escapeHtml(characteristic.uuid)+
- "</div>"+
- "<div class='small'>"+
- propertyText+
- "</div>";
- /*
-  READ
- */
- if(props.read){
-  const button =
-  document.createElement("button");
-  button.textContent =
-   "📖 Lesen";
-  button.className =
-   "gray";
-  button.onclick =
-   async function(){
-    try{
-     const value =
-      await characteristic.readValue();
-     const bytes =
-      bytesFromView(value);
-     const output =
-      formatBytes(bytes);
-     log(
-      "READ "+
-      characteristic.uuid+
-      ": "+
-      output
-     );
-    }catch(e){
-     log(
-      "READ Fehler: "+
-      e.message
-     );
+let fe95 = null;
+
+let characteristics = {};
+let values = {};
+let notifications = {};
+
+const SERVICE_UUID = "0000fe95-0000-1000-8000-00805f9b34fb";
+
+
+/* =========================
+   KNOWN CHARACTERISTICS
+========================= */
+
+const knownCharacteristics = [
+    {
+        short: "0004",
+        properties: ["READ"]
+    },
+    {
+        short: "0005",
+        properties: ["READ", "NOTIFY"]
+    },
+    {
+        short: "0010",
+        properties: ["WRITE_NO_RESPONSE", "NOTIFY"]
+    },
+    {
+        short: "0016",
+        properties: ["WRITE_NO_RESPONSE", "NOTIFY"]
+    },
+    {
+        short: "0017",
+        properties: ["WRITE", "NOTIFY"]
+    },
+    {
+        short: "0018",
+        properties: ["WRITE_NO_RESPONSE", "NOTIFY"]
+    },
+    {
+        short: "001A",
+        properties: ["WRITE_NO_RESPONSE", "NOTIFY"]
+    },
+    {
+        short: "001B",
+        properties: ["WRITE_NO_RESPONSE", "NOTIFY"]
+    },
+    {
+        short: "001C",
+        properties: ["WRITE_NO_RESPONSE"]
     }
-   };
-  box.appendChild(button);
- }
- /*
-  NOTIFY
- */
- if(
-  props.notify ||
-  props.indicate
- ){
-  const button =
-  document.createElement("button");
-  button.textContent =
-   "🔔 Notifications";
-  button.className =
-   "gray";
-  button.onclick =
-   async function(){
-    try{
-     await characteristic.startNotifications();
-     characteristic.addEventListener(
-      "characteristicvaluechanged",
-      function(event){
-       const bytes =
-        bytesFromView(
-         event.target.value
+];
+
+
+/* =========================
+   UI
+========================= */
+
+function log(message) {
+
+    const box = document.getElementById("log");
+
+    const time = new Date().toLocaleTimeString();
+
+    box.textContent +=
+        "[" + time + "] " + message + "\n";
+
+    box.scrollTop = box.scrollHeight;
+}
+
+
+function setStatus(connected, text) {
+
+    document.getElementById("statusDot")
+        .classList.toggle("on", connected);
+
+    document.getElementById("statusText")
+        .textContent = text;
+
+    document.getElementById("connectBtn").disabled = connected;
+    document.getElementById("disconnectBtn").disabled = !connected;
+}
+
+
+function shortUUID(uuid) {
+
+    const clean = uuid.toLowerCase();
+
+    if (clean.includes("0000")) {
+        const match = clean.match(/0000([0-9a-f]{4})-/);
+
+        if (match) {
+            return match[1].toUpperCase();
+        }
+    }
+
+    return uuid;
+}
+
+
+function byteArrayToHex(bytes) {
+
+    let output = "";
+
+    for (let i = 0; i < bytes.length; i++) {
+
+        let h = bytes[i].toString(16).toUpperCase();
+
+        if (h.length < 2) h = "0" + h;
+
+        output += h + (i + 1 < bytes.length ? " " : "");
+    }
+
+    return output;
+}
+
+
+function byteArrayToDec(bytes) {
+
+    let output = "";
+
+    for (let i = 0; i < bytes.length; i++) {
+
+        output += bytes[i];
+
+        if (i + 1 < bytes.length) {
+            output += " ";
+        }
+    }
+
+    return output;
+}
+
+
+function byteArrayToAscii(bytes) {
+
+    let output = "";
+
+    for (let i = 0; i < bytes.length; i++) {
+
+        const n = bytes[i];
+
+        if (n >= 32 && n <= 126) {
+            output += String.fromCharCode(n);
+        } else {
+            output += ".";
+        }
+    }
+
+    return output;
+}
+
+
+function valueToObject(bytes) {
+
+    return {
+        hex: byteArrayToHex(bytes),
+        decimal: byteArrayToDec(bytes),
+        ascii: byteArrayToAscii(bytes),
+        length: bytes.length,
+        timestamp: new Date().toISOString()
+    };
+}
+
+
+/* =========================
+   COPY
+========================= */
+
+async function copyText(text) {
+
+    try {
+
+        await navigator.clipboard.writeText(text);
+
+        log("📋 In Zwischenablage kopiert.");
+
+        return true;
+
+    } catch (error) {
+
+        log("Clipboard API nicht verfügbar: " + error);
+
+        /* Bluefy / ältere Browser */
+
+        const area = document.createElement("textarea");
+
+        area.value = text;
+
+        area.style.position = "fixed";
+        area.style.opacity = "0";
+
+        document.body.appendChild(area);
+
+        area.focus();
+        area.select();
+
+        try {
+            document.execCommand("copy");
+            log("📋 Kopieren über Fallback erfolgreich.");
+        } catch (e) {
+            log("❌ Kopieren fehlgeschlagen.");
+        }
+
+        document.body.removeChild(area);
+
+        return false;
+    }
+}
+
+
+/* =========================
+   DEVICE CONNECT
+========================= */
+
+async function connect() {
+
+    if (!navigator.bluetooth) {
+
+        alert(
+            "Web Bluetooth wird von diesem Browser nicht unterstützt."
         );
-       log(
-        "NOTIFY "+
-        characteristic.uuid+
-        ": "+
-        formatBytes(bytes)
-       );
-      }
-     );
-     button.textContent =
-      "🔔 Aktiv";
-     button.disabled = true;
-     log(
-      "Notifications gestartet: "+
-      characteristic.uuid
-     );
-    }catch(e){
-     log(
-      "Notification Fehler: "+
-      e.message
-     );
+
+        return;
     }
-   };
-  box.appendChild(button);
- }
- container.appendChild(box);
+
+    try {
+
+        log("🔎 Öffne Bluetooth-Geräteauswahl...");
+
+        device = await navigator.bluetooth.requestDevice({
+
+            acceptAllDevices: true,
+
+            optionalServices: [
+                SERVICE_UUID,
+                "fe95"
+            ]
+        });
+
+        log("Gerät ausgewählt: " + (device.name || "unbekannt"));
+
+        document.getElementById("deviceName").textContent =
+            "Gerät: " + (device.name || "unbekannt");
+
+        device.addEventListener(
+            "gattserverdisconnected",
+            disconnected
+        );
+
+        server = await device.gatt.connect();
+
+        log("GATT verbunden.");
+
+        setStatus(true, "Verbunden");
+
+        await discoverServices();
+
+    } catch (error) {
+
+        log("❌ Verbindung fehlgeschlagen: " + error);
+
+        setStatus(false, "Nicht verbunden");
+    }
 }
-/* ================================
- BYTES
-================================ */
-function bytesFromView(view){
- const result = [];
- if(!view) return result;
- for(
-  let i=0;
-  i<view.byteLength;
-  i++
- ){
-  result.push(
-   view.getUint8(i)
-  );
- }
- return result;
+
+
+async function disconnect() {
+
+    try {
+
+        if (device && device.gatt.connected) {
+
+            device.gatt.disconnect();
+
+            log("GATT getrennt.");
+        }
+
+    } catch (error) {
+
+        log("Trennen: " + error);
+    }
+
+    setStatus(false, "Nicht verbunden");
 }
-function formatBytes(bytes){
- return bytes.map(
-  x =>
-   x.toString(16)
-    .padStart(2,"0")
-    .toUpperCase()
- ).join(" ");
+
+
+function disconnected() {
+
+    log("🔌 Gerät wurde getrennt.");
+
+    setStatus(false, "Getrennt");
 }
-function escapeHtml(value){
- return String(value)
-  .replace(/&/g,"&amp;")
-  .replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;")
-  .replace(/"/g,"&quot;")
-  .replace(/'/g,"&#039;");
+
+
+/* =========================
+   DISCOVER
+========================= */
+
+async function discoverServices() {
+
+    try {
+
+        log("🔎 Suche Services...");
+
+        const services = await server.getPrimaryServices();
+
+        log("Services gefunden: " + services.length);
+
+        let found = null;
+
+        for (let i = 0; i < services.length; i++) {
+
+            const s = services[i];
+
+            log("Service: " + s.uuid);
+
+            if (
+                s.uuid.toLowerCase() === SERVICE_UUID ||
+                s.uuid.toLowerCase().includes("fe95")
+            ) {
+                found = s;
+            }
+        }
+
+        if (!found) {
+
+            log("❌ FE95 wurde nicht gefunden.");
+
+            return;
+        }
+
+        fe95 = found;
+
+        log("✅ FE95 gefunden.");
+
+        await discoverCharacteristics();
+
+    } catch (error) {
+
+        log("❌ Service-Suche: " + error);
+    }
 }
-/* ================================
- RIDE
-================================ */
-function startRide(){
- if(rideRunning) return;
- rideRunning = true;
- rideStart = Date.now();
- rideInterval =
-  setInterval(updateRide,1000);
- log("Fahrt gestartet.");
+
+
+/* =========================
+   CHARACTERISTICS
+========================= */
+
+async function discoverCharacteristics() {
+
+    if (!fe95) return;
+
+    try {
+
+        log("🔎 Suche Characteristics von FE95...");
+
+        const list = await fe95.getCharacteristics();
+
+        characteristics = {};
+
+        for (let i = 0; i < list.length; i++) {
+
+            const c = list[i];
+
+            const short = shortUUID(c.uuid);
+
+            characteristics[short] = c;
+
+            log(
+                "Characteristic " +
+                short +
+                " | " +
+                propertyString(c)
+            );
+        }
+
+        renderCharacteristics();
+
+    } catch (error) {
+
+        log("❌ Characteristic-Suche: " + error);
+    }
 }
-function stopRide(){
- if(!rideRunning) return;
- rideRunning = false;
- clearInterval(rideInterval);
- log("Fahrt beendet.");
+
+
+function propertyString(c) {
+
+    const p = c.properties;
+
+    const arr = [];
+
+    if (p.read) arr.push("READ");
+    if (p.write) arr.push("WRITE");
+    if (p.writeWithoutResponse)
+        arr.push("WRITE_NO_RESPONSE");
+    if (p.notify) arr.push("NOTIFY");
+    if (p.indicate) arr.push("INDICATE");
+
+    return arr.join(" ");
 }
-function updateRide(){
- if(!rideRunning) return;
- rideSeconds =
-  Math.floor(
-   (Date.now()-rideStart)/1000
-  );
- const min =
-  Math.floor(rideSeconds/60);
- const sec =
-  rideSeconds%60;
- const time =
-  String(min).padStart(2,"0")+
-  ":"+
-  String(sec).padStart(2,"0");
- document.getElementById(
-  "rideTime"
- ).textContent = time;
- document.getElementById(
-  "rideTimer"
- ).textContent = time;
+
+
+/* =========================
+   RENDER
+========================= */
+
+function renderCharacteristics() {
+
+    const container =
+        document.getElementById("characteristics");
+
+    container.innerHTML = "";
+
+    const keys = Object.keys(characteristics);
+
+    if (!keys.length) {
+
+        container.innerHTML =
+            "<p class='small'>Keine Characteristics gefunden.</p>";
+
+        return;
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+
+        const short = keys[i];
+
+        const c = characteristics[short];
+
+        const card = document.createElement("div");
+
+        card.className = "char";
+
+        const head = document.createElement("div");
+
+        head.className = "char-head";
+
+        const uuid = document.createElement("div");
+
+        uuid.className = "uuid";
+
+        uuid.textContent = short;
+
+        const full = document.createElement("div");
+
+        full.className = "properties";
+
+        full.textContent = propertyString(c);
+
+        head.appendChild(uuid);
+        head.appendChild(full);
+
+        card.appendChild(head);
+
+
+        const value = document.createElement("div");
+
+        value.className = "value";
+
+        value.id = "value-" + short;
+
+        value.textContent = "Noch kein Wert";
+
+        card.appendChild(value);
+
+
+        const buttons =
+            document.createElement("div");
+
+        buttons.className = "char-buttons";
+
+
+        if (c.properties.read) {
+
+            const read =
+                document.createElement("button");
+
+            read.textContent = "📖 Lesen";
+
+            read.onclick = function() {
+                readCharacteristic(short);
+            };
+
+            buttons.appendChild(read);
+        }
+
+
+        if (c.properties.notify) {
+
+            const notify =
+                document.createElement("button");
+
+            notify.className = "notify";
+
+            notify.textContent =
+                notifications[short]
+                ? "🔕 Stoppen"
+                : "🔔 Notifications";
+
+            notify.onclick = function() {
+
+                if (notifications[short]) {
+                    stopNotifications(short);
+                } else {
+                    startNotifications(short);
+                }
+            };
+
+            buttons.appendChild(notify);
+        }
+
+
+        const copy =
+            document.createElement("button");
+
+        copy.textContent = "📋 Kopieren";
+
+        copy.onclick = function() {
+
+            const data = values[short];
+
+            if (!data) {
+
+                copyText(
+                    "Characteristic " +
+                    short +
+                    "\nNoch kein Wert vorhanden."
+                );
+
+                return;
+            }
+
+            copyText(formatValueForCopy(short, data));
+        };
+
+        buttons.appendChild(copy);
+
+
+        card.appendChild(buttons);
+
+        container.appendChild(card);
+    }
 }
-/* ================================
- LOCAL SETTINGS
-================================ */
-function saveSettings(){
- const settings = {
-  mode:
-   document.getElementById(
-    "modeSelect"
-   ).value,
-  regen:
-   document.getElementById(
-    "regenSelect"
-   ).value,
-  unit:
-   document.getElementById(
-    "unit"
-   ).value,
-  autoReconnect:
-   document.getElementById(
-    "autoReconnect"
-   ).value
- };
- localStorage.setItem(
-  "scooterSettings",
-  JSON.stringify(settings)
- );
- document.getElementById("mode")
- .textContent =
-  settings.mode;
- log("Einstellungen gespeichert.");
+
+
+/* =========================
+   READ
+========================= */
+
+async function readCharacteristic(short) {
+
+    const c = characteristics[short];
+
+    if (!c) return;
+
+    if (!c.properties.read) {
+
+        log(short + ": READ nicht unterstützt.");
+
+        return;
+    }
+
+    try {
+
+        log("📖 Lese " + short + "...");
+
+        const data =
+            await c.readValue();
+
+        const bytes =
+            new Uint8Array(data.buffer);
+
+        saveValue(short, bytes, "READ");
+
+        log(
+            short +
+            " → " +
+            byteArrayToHex(bytes)
+        );
+
+    } catch (error) {
+
+        log(
+            "❌ Lesen " +
+            short +
+            ": " +
+            error
+        );
+    }
 }
-function loadSettings(){
- try{
-  const raw =
-   localStorage.getItem(
-    "scooterSettings"
-   );
-  if(!raw) return;
-  const s =
-   JSON.parse(raw);
-  if(s.mode)
-   document.getElementById(
-    "modeSelect"
-   ).value=s.mode;
-  if(s.regen)
-   document.getElementById(
-    "regenSelect"
-   ).value=s.regen;
-  if(s.unit)
-   document.getElementById(
-    "unit"
-   ).value=s.unit;
-  if(s.autoReconnect)
-   document.getElementById(
-    "autoReconnect"
-   ).value=s.autoReconnect;
-  document.getElementById("mode")
-   .textContent =
-    s.mode || "--";
- }catch(e){
-  console.log(e);
- }
+
+
+/* =========================
+   NOTIFICATIONS
+========================= */
+
+async function startNotifications(short) {
+
+    const c = characteristics[short];
+
+    if (!c || !c.properties.notify) return;
+
+    try {
+
+        await c.startNotifications();
+
+        const handler = function(event) {
+
+            const bytes =
+                new Uint8Array(
+                    event.target.value.buffer
+                );
+
+            saveValue(
+                short,
+                bytes,
+                "NOTIFY"
+            );
+
+            log(
+                "🔔 " +
+                short +
+                " → " +
+                byteArrayToHex(bytes)
+            );
+        };
+
+        c.addEventListener(
+            "characteristicvaluechanged",
+            handler
+        );
+
+        notifications[short] = true;
+
+        log(
+            "🔔 Notifications aktiviert: " +
+            short
+        );
+
+        renderCharacteristics();
+
+    } catch (error) {
+
+        log(
+            "❌ Notification " +
+            short +
+            ": " +
+            error
+        );
+    }
 }
-function clearSettings(){
- localStorage.removeItem(
-  "scooterSettings"
- );
- location.reload();
+
+
+async function stopNotifications(short) {
+
+    const c = characteristics[short];
+
+    if (!c) return;
+
+    try {
+
+        await c.stopNotifications();
+
+        notifications[short] = false;
+
+        log(
+            "🔕 Notifications deaktiviert: " +
+            short
+        );
+
+        renderCharacteristics();
+
+    } catch (error) {
+
+        log(
+            "❌ Stoppen " +
+            short +
+            ": " +
+            error
+        );
+    }
 }
-/* ================================
- LOCAL FEATURE
-================================ */
-function localFeature(name){
- log(
-  name+
-  " wurde in der Oberfläche ausgewählt."
- );
- alert(
-  name+
-  " kann erst tatsächlich am Scooter geschaltet werden, "+
-  "wenn das zugehörige BLE-Characteristic identifiziert ist."
- );
+
+
+/* =========================
+   SAVE VALUE
+========================= */
+
+function saveValue(short, bytes, source) {
+
+    const data = valueToObject(bytes);
+
+    data.source = source;
+
+    values[short] = data;
+
+    const element =
+        document.getElementById(
+            "value-" + short
+        );
+
+    if (element) {
+
+        element.textContent =
+            "HEX: " + data.hex +
+            "\nDEC: " + data.decimal +
+            "\nASCII: " + data.ascii;
+    }
 }
-/* ================================
- BUTTONS
-================================ */
-document.getElementById("connect")
- .onclick =
- connectScooter;
-document.getElementById("disconnect")
- .onclick =
- disconnect;
-/* ================================
- START
-================================ */
-loadSettings();
-log(
- "Scooter Control bereit."
-);
-if(!navigator.bluetooth){
- log(
-  "Web Bluetooth nicht verfügbar."
- );
-}else{
- log(
-  "Web Bluetooth verfügbar."
- );
+
+
+/* =========================
+   READ ALL
+========================= */
+
+async function readAll() {
+
+    const keys =
+        Object.keys(characteristics);
+
+    for (let i = 0; i < keys.length; i++) {
+
+        const short = keys[i];
+
+        if (
+            characteristics[short]
+                .properties.read
+        ) {
+
+            await readCharacteristic(short);
+        }
+    }
+
+    log("✅ Alle lesbaren Characteristics verarbeitet.");
 }
+
+
+/* =========================
+   ALL NOTIFICATIONS
+========================= */
+
+async function startAllNotifications() {
+
+    const keys =
+        Object.keys(characteristics);
+
+    for (let i = 0; i < keys.length; i++) {
+
+        const short = keys[i];
+
+        if (
+            characteristics[short]
+                .properties.notify
+        ) {
+
+            if (!notifications[short]) {
+
+                await startNotifications(short);
+            }
+        }
+    }
+
+    log("🔔 Alle möglichen Notifications aktiviert.");
+}
+
+
+/* =========================
+   COPY FORMATS
+========================= */
+
+function formatValueForCopy(short, data) {
+
+    return [
+        "SERVICE: FE95",
+        "CHARACTERISTIC: " + short,
+        "SOURCE: " + data.source,
+        "TIMESTAMP: " + data.timestamp,
+        "",
+        "HEX:",
+        data.hex,
+        "",
+        "DECIMAL:",
+        data.decimal,
+        "",
+        "ASCII:",
+        data.ascii,
+        "",
+        "LENGTH:",
+        data.length + " bytes"
+    ].join("\n");
+}
+
+
+function createCompleteReport() {
+
+    let output = "";
+
+    output += "XIAOMI SCOOTER BLE DIAGNOSTIC\n";
+    output += "=============================\n\n";
+
+    output += "DEVICE:\n";
+    output += (
+        device && device.name
+        ? device.name
+        : "unknown"
+    );
+
+    output += "\n\nSERVICE:\nFE95\n\n";
+
+    const keys =
+        Object.keys(characteristics);
+
+    for (let i = 0; i < keys.length; i++) {
+
+        const short = keys[i];
+
+        const c = characteristics[short];
+
+        output +=
+            "CHARACTERISTIC " +
+            short +
+            "\n";
+
+        output +=
+            "PROPERTIES: " +
+            propertyString(c) +
+            "\n";
+
+        if (values[short]) {
+
+            output +=
+                "SOURCE: " +
+                values[short].source +
+                "\n";
+
+            output +=
+                "HEX: " +
+                values[short].hex +
+                "\n";
+
+            output +=
+                "DECIMAL: " +
+                values[short].decimal +
+                "\n";
+
+            output +=
+                "ASCII: " +
+                values[short].ascii +
+                "\n";
+
+            output +=
+                "LENGTH: " +
+                values[short].length +
+                "\n";
+        } else {
+
+            output += "VALUE: no value received\n";
+        }
+
+        output +=
+            "NOTIFICATIONS: " +
+            (
+                notifications[short]
+                ? "ON"
+                : "OFF"
+            ) +
+            "\n\n";
+    }
+
+    return output;
+}
+
+
+/* =========================
+   JSON
+========================= */
+
+function createJSON() {
+
+    const result = {
+
+        device:
+            device
+            ? {
+                name: device.name || null,
+                id: device.id || null
+            }
+            : null,
+
+        service: "FE95",
+
+        characteristics: {}
+    };
+
+    const keys =
+        Object.keys(characteristics);
+
+    for (let i = 0; i < keys.length; i++) {
+
+        const short = keys[i];
+
+        result.characteristics[short] = {
+
+            properties:
+                propertyString(
+                    characteristics[short]
+                ),
+
+            notifications:
+                !!notifications[short],
+
+            value:
+                values[short] || null
+        };
+    }
+
+    return JSON.stringify(
+        result,
+        null,
+        2
+    );
+}
+
+
+/* =========================
+   KNOWN LIST
+========================= */
+
+function renderKnownList() {
+
+    const box =
+        document.getElementById("knownList");
+
+    box.innerHTML = "";
+
+    for (
+        let i = 0;
+        i < knownCharacteristics.length;
+        i++
+    ) {
+
+        const item =
+            knownCharacteristics[i];
+
+        const div =
+            document.createElement("div");
+
+        div.className = "char";
+
+        div.innerHTML =
+            "<strong>" +
+            item.short +
+            "</strong>" +
+            "<div class='properties'>" +
+            item.properties.join(" • ") +
+            "</div>";
+
+        box.appendChild(div);
+    }
+}
+
+
+/* =========================
+   EVENTS
+========================= */
+
+document.getElementById("connectBtn")
+    .onclick = connect;
+
+document.getElementById("scanBtn")
+    .onclick = connect;
+
+document.getElementById("disconnectBtn")
+    .onclick = disconnect;
+
+document.getElementById("readAllBtn")
+    .onclick = readAll;
+
+document.getElementById("notificationsBtn")
+    .onclick = startAllNotifications;
+
+document.getElementById("refreshBtn")
+    .onclick = discoverCharacteristics;
+
+
+document.getElementById("copyAllBtn")
+    .onclick = function() {
+
+        copyText(
+            createCompleteReport()
+        );
+    };
+
+
+document.getElementById("copyJsonBtn")
+    .onclick = function() {
+
+        copyText(
+            createJSON()
+        );
+    };
+
+
+document.getElementById("copyLogBtn")
+    .onclick = function() {
+
+        copyText(
+            document.getElementById("log")
+                .textContent
+        );
+    };
+
+
+document.getElementById("clearLogBtn")
+    .onclick = function() {
+
+        document.getElementById("log")
+            .textContent = "";
+    };
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+const tabs =
+    document.querySelectorAll(".tab");
+
+for (let i = 0; i < tabs.length; i++) {
+
+    tabs[i].onclick = function() {
+
+        for (
+            let j = 0;
+            j < tabs.length;
+            j++
+        ) {
+            tabs[j].classList.remove("active");
+        }
+
+        this.classList.add("active");
+
+        const pages =
+            document.querySelectorAll(".page");
+
+        for (
+            let j = 0;
+            j < pages.length;
+            j++
+        ) {
+            pages[j].classList.remove("active");
+        }
+
+        document.getElementById(
+            this.dataset.page
+        ).classList.add("active");
+    };
+}
+
+
+/* =========================
+   STARTUP
+========================= */
+
+renderKnownList();
+
+log("App gestartet.");
+log("BLE-Service: FE95");
+log("Bereit.");
+
 </script>
+
 </body>
 </html>
