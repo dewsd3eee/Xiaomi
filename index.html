@@ -1,1190 +1,883 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0f14">
-  <title>Scooter BLE Dashboard</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0f14;
-      color: #f5f7fa;
-    }
-
-    header {
-      padding: 20px;
-      background: #111720;
-      border-bottom: 1px solid #252d38;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
-    }
-
-    header p {
-      margin: 0;
-      color: #9da8b5;
-      font-size: 14px;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 13px 18px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      background: #2f80ed;
-      color: white;
-      margin: 4px;
-    }
-
-    button.secondary {
-      background: #252d38;
-    }
-
-    button.danger {
-      background: #b83a3a;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .status {
-      padding: 14px;
-      margin: 15px 0;
-      background: #111720;
-      border: 1px solid #252d38;
-      border-radius: 14px;
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #777;
-      margin-right: 8px;
-    }
-
-    .status-dot.connected {
-      background: #36c275;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 14px;
-      margin-top: 20px;
-    }
-
-    .card {
-      background: #111720;
-      border: 1px solid #252d38;
-      border-radius: 16px;
-      padding: 18px;
-    }
-
-    .card-title {
-      color: #9da8b5;
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-
-    .value {
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    section {
-      margin-top: 25px;
-    }
-
-    section h2 {
-      font-size: 19px;
-      margin-bottom: 12px;
-    }
-
-    .service {
-      background: #111720;
-      border: 1px solid #252d38;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .uuid {
-      font-family: monospace;
-      font-size: 13px;
-      color: #7fb3ff;
-      word-break: break-all;
-    }
-
-    .char {
-      margin-top: 10px;
-      padding: 12px;
-      background: #0b0f14;
-      border-radius: 10px;
-    }
-
-    .char-name {
-      font-weight: bold;
-    }
-
-    .properties {
-      color: #9da8b5;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    .log {
-      background: #05070a;
-      border: 1px solid #252d38;
-      border-radius: 14px;
-      padding: 15px;
-      height: 230px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 12px;
-      white-space: pre-wrap;
-    }
-
-    .notice {
-      background: #172233;
-      border: 1px solid #29415f;
-      color: #c9dcf5;
-      padding: 14px;
-      border-radius: 12px;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 600px) {
-      main {
-        padding: 12px;
-      }
-
-      .value {
-        font-size: 24px;
-      }
-
-      button {
-        width: 100%;
-        margin: 4px 0;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080b10">
+<title>Scooter Control</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#080b10;
+ color:#f4f7fb;
+ font-family:Arial,sans-serif;
+ padding-bottom:80px
+}
+header{
+ position:sticky;top:0;z-index:10;
+ background:#0d1219;
+ border-bottom:1px solid #202936;
+ padding:16px
+}
+h1{margin:0;font-size:21px}
+.small{color:#8995a5;font-size:12px;margin-top:5px}
+main{max-width:900px;margin:auto;padding:14px}
+.page{display:none}
+.page.active{display:block}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:10px
+}
+.card{
+ background:#10161f;
+ border:1px solid #202936;
+ border-radius:17px;
+ padding:16px;
+ margin-bottom:10px
+}
+.label{color:#8f9baa;font-size:12px;margin-bottom:8px}
+.big{font-size:28px;font-weight:bold}
+h2{font-size:18px;margin:8px 0 13px}
+button{
+ width:100%;
+ border:0;
+ border-radius:12px;
+ padding:13px;
+ margin:4px 0;
+ background:#287bea;
+ color:#fff;
+ font-weight:bold;
+ font-size:14px
+}
+button.gray{background:#242d39}
+button.red{background:#a93535}
+button.green{background:#218c57}
+button:disabled{opacity:.45}
+input,select{
+ width:100%;
+ padding:12px;
+ border-radius:10px;
+ border:1px solid #303b49;
+ background:#0b1016;
+ color:#fff
+}
+.status{
+ padding:13px;
+ border-radius:13px;
+ background:#10161f;
+ border:1px solid #202936;
+ margin-bottom:12px
+}
+.dot{
+ display:inline-block;
+ width:9px;height:9px;
+ border-radius:50%;
+ background:#777;
+ margin-right:7px
+}
+.dot.on{background:#31c77b}
+.nav{
+ position:fixed;
+ bottom:0;left:0;right:0;
+ height:68px;
+ background:#0d1219;
+ border-top:1px solid #202936;
+ display:flex;
+ z-index:20
+}
+.nav button{
+ margin:0;
+ border-radius:0;
+ background:transparent;
+ color:#8995a5;
+ font-size:11px
+}
+.nav button.active{color:#fff;background:#151c26}
+.service{
+ background:#10161f;
+ border:1px solid #202936;
+ border-radius:14px;
+ padding:13px;
+ margin-bottom:10px
+}
+.uuid{
+ font-family:monospace;
+ color:#79adff;
+ font-size:11px;
+ word-break:break-all;
+ margin-top:5px
+}
+.char{
+ margin-top:9px;
+ background:#080c11;
+ border-radius:10px;
+ padding:10px
+}
+.log{
+ height:230px;
+ overflow:auto;
+ background:#030508;
+ border:1px solid #202936;
+ border-radius:12px;
+ padding:10px;
+ font:11px monospace;
+ white-space:pre-wrap
+}
+.notice{
+ background:#172437;
+ border:1px solid #29425e;
+ padding:12px;
+ border-radius:12px;
+ color:#c9dcf3;
+ font-size:12px;
+ line-height:1.5;
+ margin-bottom:12px
+}
+.row{
+ display:flex;
+ gap:8px
+}
+.row>*{flex:1}
+</style>
 </head>
-
 <body>
-
 <header>
-  <h1>🛴 Scooter BLE Dashboard</h1>
-  <p>Web Bluetooth Diagnose & Dashboard</p>
+ <h1>🛴 Scooter Control</h1>
+ <div class="small" id="headerStatus">Nicht verbunden</div>
 </header>
-
 <main>
-
-  <div class="notice">
-    Diese App erkennt die BLE-Struktur des Scooters automatisch.
-    Sie liest nur unterstützte Informationen und sendet keine unbekannten
-    oder sicherheitskritischen Befehle.
+<!-- DASHBOARD -->
+<div class="page active" id="dashboard">
+ <div class="status">
+  <span class="dot" id="dot"></span>
+  <strong id="connection">Offline</strong>
+  <div class="small" id="device">Kein Scooter verbunden</div>
+ </div>
+ <button id="connect">🔵 Scooter verbinden</button>
+ <button id="disconnect" class="gray" disabled>Trennen</button>
+ <h2>Dashboard</h2>
+ <div class="grid">
+  <div class="card">
+   <div class="label">Geschwindigkeit</div>
+   <div class="big" id="speed">-- km/h</div>
   </div>
-
-  <div class="status">
-    <span id="statusDot" class="status-dot"></span>
-    <strong id="statusText">Nicht verbunden</strong>
-    <div id="deviceName" style="margin-top:6px;color:#9da8b5;">
-      Kein Gerät
-    </div>
+  <div class="card">
+   <div class="label">Akku</div>
+   <div class="big" id="battery">-- %</div>
   </div>
-
-  <div>
-    <button id="connectBtn">🔵 Scooter verbinden</button>
-    <button id="disconnectBtn" class="secondary" disabled>
-      Trennen
-    </button>
-    <button id="scanBtn" class="secondary">
-      🔍 Services neu anzeigen
-    </button>
+  <div class="card">
+   <div class="label">Reichweite</div>
+   <div class="big" id="range">-- km</div>
   </div>
-
-  <!-- DASHBOARD -->
-
-  <section>
-    <h2>Dashboard</h2>
-
-    <div class="grid">
-
-      <div class="card">
-        <div class="card-title">Geschwindigkeit</div>
-        <div class="value" id="speed">-- km/h</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Akku</div>
-        <div class="value" id="battery">-- %</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Restreichweite</div>
-        <div class="value" id="range">-- km</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Fahrmodus</div>
-        <div class="value" id="mode">--</div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- FAHREN -->
-
-  <section>
-    <h2>Fahren</h2>
-
-    <div class="grid">
-
-      <div class="card">
-        <div class="card-title">Live-Geschwindigkeit</div>
-        <div class="value" id="liveSpeed">--</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Fahrtdauer</div>
-        <div class="value" id="rideTime">00:00</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Strecke</div>
-        <div class="value" id="distance">-- km</div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- SCOOTER -->
-
-  <section>
-    <h2>Scooter</h2>
-
-    <div class="grid">
-
-      <div class="card">
-        <div class="card-title">Verbindung</div>
-        <div class="value" id="connectionState">
-          Offline
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Licht</div>
-        <div class="value" id="lightState">
-          --
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Energierückgewinnung</div>
-        <div class="value" id="regenState">
-          --
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- BLE -->
-
-  <section>
-    <h2>BLE Services & Characteristics</h2>
-
-    <div id="services">
-      Noch keine Verbindung.
-    </div>
-  </section>
-
-  <!-- LOG -->
-
-  <section>
-    <h2>Diagnose-Log</h2>
-
-    <div id="log" class="log"></div>
-  </section>
-
+  <div class="card">
+   <div class="label">Fahrmodus</div>
+   <div class="big" id="mode">--</div>
+  </div>
+ </div>
+ <div class="card">
+  <div class="label">Fahrtdauer</div>
+  <div class="big" id="rideTime">00:00</div>
+ </div>
+ <div class="card">
+  <div class="label">Strecke</div>
+  <div class="big" id="distance">0.00 km</div>
+ </div>
+</div>
+<!-- FAHREN -->
+<div class="page" id="ride">
+ <h2>Fahren</h2>
+ <div class="card">
+  <div class="label">Live-Geschwindigkeit</div>
+  <div class="big" id="rideSpeed">-- km/h</div>
+ </div>
+ <div class="grid">
+  <div class="card">
+   <div class="label">Fahrtdauer</div>
+   <div class="big" id="rideTimer">00:00</div>
+  </div>
+  <div class="card">
+   <div class="label">Strecke</div>
+   <div class="big" id="rideDistance">0.00 km</div>
+  </div>
+ </div>
+ <button class="green" onclick="startRide()">▶ Fahrt starten</button>
+ <button class="gray" onclick="stopRide()">■ Fahrt beenden</button>
+</div>
+<!-- SCOOTER -->
+<div class="page" id="scooter">
+ <h2>Scooter</h2>
+ <div class="card">
+  <div class="label">Fahrmodus</div>
+  <select id="modeSelect" onchange="saveSettings()">
+   <option>Standard</option>
+   <option>Sport</option>
+   <option>Eco</option>
+  </select>
+  <div class="small">
+   Der ausgewählte Modus wird lokal gespeichert.
+   Die tatsächliche BLE-Umschaltung erfolgt erst,
+   wenn das passende Characteristic-Protokoll bekannt ist.
+  </div>
+ </div>
+ <div class="card">
+  <div class="label">Licht</div>
+  <button class="gray" onclick="localFeature('Licht')">
+   💡 Licht
+  </button>
+ </div>
+ <div class="card">
+  <div class="label">Energierückgewinnung</div>
+  <select id="regenSelect" onchange="saveSettings()">
+   <option>Niedrig</option>
+   <option>Mittel</option>
+   <option>Hoch</option>
+  </select>
+  <div class="small">
+   Einstellung wird gespeichert.
+  </div>
+ </div>
+ <div class="card">
+  <div class="label">Motorsperre</div>
+  <div class="small">
+   Status wird angezeigt, sobald das entsprechende
+   Scooter-Characteristic identifiziert wurde.
+  </div>
+ </div>
+</div>
+<!-- DIAGNOSE -->
+<div class="page" id="diagnose">
+ <h2>Diagnose</h2>
+ <div class="grid">
+  <div class="card">
+   <div class="label">BLE</div>
+   <div class="big" id="bleState">Offline</div>
+  </div>
+  <div class="card">
+   <div class="label">Services</div>
+   <div class="big" id="serviceCount">0</div>
+  </div>
+ </div>
+ <button class="gray" onclick="discover()">🔍 Services scannen</button>
+ <div id="services">
+  Noch keine Services.
+ </div>
+</div>
+<!-- EINSTELLUNGEN -->
+<div class="page" id="settings">
+ <h2>Einstellungen</h2>
+ <div class="card">
+  <div class="label">Dashboard-Einheit</div>
+  <select id="unit" onchange="saveSettings()">
+   <option value="km">km / km/h</option>
+   <option value="mi">mi / mph</option>
+  </select>
+ </div>
+ <div class="card">
+  <div class="label">Automatische Wiederverbindung</div>
+  <select id="autoReconnect" onchange="saveSettings()">
+   <option value="yes">Ein</option>
+   <option value="no">Aus</option>
+  </select>
+ </div>
+ <button class="gray" onclick="clearSettings()">
+  Einstellungen zurücksetzen
+ </button>
+</div>
+<!-- BLE -->
+<div class="page" id="ble">
+ <h2>BLE</h2>
+ <div class="notice">
+  Hier siehst du die echten BLE-Daten des Scooters.
+  Lesen und Notifications sind verfügbar, sofern der
+  Scooter sie anbietet.
+ </div>
+ <div class="log" id="log"></div>
+</div>
 </main>
-
-
+<!-- NAVIGATION -->
+<div class="nav">
+ <button onclick="page('dashboard')" id="n-dashboard" class="active">
+  🏠<br>Dashboard
+ </button>
+ <button onclick="page('ride')" id="n-ride">
+  🛴<br>Fahren
+ </button>
+ <button onclick="page('scooter')" id="n-scooter">
+  ⚙️<br>Scooter
+ </button>
+ <button onclick="page('diagnose')" id="n-diagnose">
+  🔧<br>Diagnose
+ </button>
+ <button onclick="page('settings')" id="n-settings">
+  ⚙️<br>Einstellungen
+ </button>
+ <button onclick="page('ble')" id="n-ble">
+  📡<br>BLE
+ </button>
+</div>
 <script>
-
 "use strict";
-
-/* =========================================================
-   SCOOTER BLE DASHBOARD
-   ========================================================= */
-
-let bluetoothDevice = null;
+let device = null;
 let server = null;
-
-const servicesMap = new Map();
-
-
-/* =========================================================
-   ELEMENTE
-   ========================================================= */
-
-const connectBtn = document.getElementById("connectBtn");
-const disconnectBtn = document.getElementById("disconnectBtn");
-const scanBtn = document.getElementById("scanBtn");
-
-const statusText = document.getElementById("statusText");
-const statusDot = document.getElementById("statusDot");
-const deviceName = document.getElementById("deviceName");
-
-const servicesContainer = document.getElementById("services");
-const logContainer = document.getElementById("log");
-
-
-/* =========================================================
-   LOG
-   ========================================================= */
-
-function log(message) {
-
-  const time = new Date().toLocaleTimeString();
-
-  logContainer.textContent +=
-    `[${time}] ${message}\n`;
-
-  logContainer.scrollTop =
-    logContainer.scrollHeight;
-
-  console.log(message);
+let rideRunning = false;
+let rideStart = 0;
+let rideInterval = null;
+let rideSeconds = 0;
+/* ================================
+ NAVIGATION
+================================ */
+function page(name){
+ document.querySelectorAll(".page")
+ .forEach(x => x.classList.remove("active"));
+ document.getElementById(name)
+ .classList.add("active");
+ document.querySelectorAll(".nav button")
+ .forEach(x => x.classList.remove("active"));
+ const nav =
+ document.getElementById("n-"+name);
+ if(nav) nav.classList.add("active");
 }
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
-
-function setConnected(connected) {
-
-  if (connected) {
-
-    statusDot.classList.add("connected");
-
-    statusText.textContent =
-      "GATT verbunden";
-
-    document.getElementById(
-      "connectionState"
-    ).textContent = "Online";
-
-    connectBtn.disabled = true;
-    disconnectBtn.disabled = false;
-
-  } else {
-
-    statusDot.classList.remove("connected");
-
-    statusText.textContent =
-      "Nicht verbunden";
-
-    document.getElementById(
-      "connectionState"
-    ).textContent = "Offline";
-
-    connectBtn.disabled = false;
-    disconnectBtn.disabled = true;
-  }
+/* ================================
+ LOG
+================================ */
+function log(text){
+ const el =
+ document.getElementById("log");
+ const time =
+ new Date().toLocaleTimeString();
+ el.textContent +=
+ "["+time+"] "+text+"\n";
+ el.scrollTop =
+ el.scrollHeight;
+ console.log(text);
 }
-
-
-/* =========================================================
-   CONNECT
-   ========================================================= */
-
-async function connectBluetooth() {
-
-  if (!navigator.bluetooth) {
-
-    alert(
-      "Web Bluetooth wird von diesem Browser nicht unterstützt."
-    );
-
-    return;
-  }
-
-  try {
-
-    log("Suche nach BLE-Geräten...");
-
-    /*
-      Wir verwenden acceptAllDevices, damit dein Scooter
-      auch dann gefunden wird, wenn der Herstellername/
-      Service noch nicht bekannt ist.
-    */
-
-    bluetoothDevice =
-      await navigator.bluetooth.requestDevice({
-
-        acceptAllDevices: true,
-
-        optionalServices: [
-          "fe95"
-        ]
-
-      });
-
-
-    if (!bluetoothDevice) {
-
-      log("Kein Gerät ausgewählt.");
-      return;
-    }
-
-
-    log(
-      "Gerät ausgewählt: " +
-      (bluetoothDevice.name || "Unbekannt")
-    );
-
-
-    deviceName.textContent =
-      bluetoothDevice.name ||
-      "Unbekanntes BLE-Gerät";
-
-
-    bluetoothDevice.addEventListener(
-      "gattserverdisconnected",
-      handleDisconnected
-    );
-
-
-    log("Verbinde mit GATT...");
-
-    server =
-      await bluetoothDevice.gatt.connect();
-
-
-    log("GATT verbunden.");
-
-    setConnected(true);
-
-
-    await discoverServices();
-
-  } catch (error) {
-
-    log(
-      "Verbindungsfehler: " +
-      error.message
-    );
-
-    console.error(error);
-
-    setConnected(false);
-  }
-}
-
-
-/* =========================================================
-   DISCONNECT
-   ========================================================= */
-
-function disconnectBluetooth() {
-
-  try {
-
-    if (
-      bluetoothDevice &&
-      bluetoothDevice.gatt.connected
-    ) {
-
-      bluetoothDevice.gatt.disconnect();
-
-      log("GATT getrennt.");
-
-    }
-
-  } catch (error) {
-
-    log(
-      "Fehler beim Trennen: " +
-      error.message
-    );
-  }
-
-  setConnected(false);
-}
-
-
-/* =========================================================
-   DISCONNECTED
-   ========================================================= */
-
-function handleDisconnected() {
-
-  log("BLE-Gerät wurde getrennt.");
-
-  setConnected(false);
-}
-
-
-/* =========================================================
-   SERVICE DISCOVERY
-   ========================================================= */
-
-async function discoverServices() {
-
-  if (!server) {
-
-    log("Kein GATT-Server vorhanden.");
-    return;
-  }
-
-  servicesContainer.innerHTML = "";
-
-  servicesMap.clear();
-
-  try {
-
-    /*
-      Wichtig:
-
-      getPrimaryServices() liefert eine iterable
-      BluetoothRemoteGATTService-Liste.
-
-      Wir konvertieren sie ausdrücklich mit Array.from().
-      Dadurch vermeiden wir Probleme mit Spread-Syntax
-      bei Browsern/Bluefy.
-    */
-
-    const servicesResult =
-      await server.getPrimaryServices();
-
-
-    const services =
-      Array.from(servicesResult || []);
-
-
-    log(
-      "Gefundene Primary Services: " +
-      services.length
-    );
-
-
-    if (services.length === 0) {
-
-      servicesContainer.innerHTML =
-        "<p>Keine Primary Services gefunden.</p>";
-
-      return;
-    }
-
-
-    for (const service of services) {
-
-      await inspectService(service);
-    }
-
-
-  } catch (error) {
-
-    log(
-      "Service Discovery Fehler: " +
-      error.message
-    );
-
-    console.error(error);
-
-    servicesContainer.innerHTML =
-      `<div class="notice">
-        Fehler beim Auslesen der Services:<br>
-        ${escapeHtml(error.message)}
-      </div>`;
-  }
-}
-
-
-/* =========================================================
-   SERVICE INSPECTION
-   ========================================================= */
-
-async function inspectService(service) {
-
-  const serviceUUID =
-    service.uuid;
-
-
+/* ================================
+ CONNECT
+================================ */
+async function connectScooter(){
+ if(!navigator.bluetooth){
+  alert(
+   "Web Bluetooth wird in diesem Browser nicht unterstützt."
+  );
+  return;
+ }
+ try{
+  log("Suche nach BLE-Geräten...");
+  device =
+   await navigator.bluetooth.requestDevice({
+    acceptAllDevices:true,
+    optionalServices:[
+     "fe95"
+    ]
+   });
+  document.getElementById("device")
+  .textContent =
+   device.name || "Unbekanntes Gerät";
   log(
-    "Service: " +
-    serviceUUID
+   "Gerät ausgewählt: "+
+   (device.name || "Unbekannt")
   );
-
-
-  const serviceBox =
-    document.createElement("div");
-
-  serviceBox.className =
-    "service";
-
-
-  serviceBox.innerHTML = `
-    <div>
-      <strong>Service</strong>
-    </div>
-
-    <div class="uuid">
-      ${escapeHtml(serviceUUID)}
-    </div>
-
-    <div
-      class="characteristics"
-      style="margin-top:12px"
-    >
-      Lade Characteristics...
-    </div>
-  `;
-
-
-  servicesContainer.appendChild(
-    serviceBox
+  device.addEventListener(
+   "gattserverdisconnected",
+   disconnected
   );
-
-
-  const charContainer =
-    serviceBox.querySelector(
-      ".characteristics"
-    );
-
-
-  try {
-
-    /*
-      Genau hier lag dein Fehler:
-
-      NICHT:
-
-      [...characteristics]
-
-      sondern:
-
-      Array.from(characteristics)
-
-      Das ist mit Bluefy/Web-Bluetooth
-      wesentlich robuster.
-    */
-
-    const characteristicsResult =
-      await service.getCharacteristics();
-
-
-    const characteristics =
-      Array.from(
-        characteristicsResult || []
-      );
-
-
-    log(
-      "  Characteristics: " +
-      characteristics.length
-    );
-
-
-    charContainer.innerHTML = "";
-
-
-    if (characteristics.length === 0) {
-
-      charContainer.textContent =
-        "Keine Characteristics gefunden.";
-
-      return;
-    }
-
-
-    for (
-      const characteristic
-      of characteristics
-    ) {
-
-      renderCharacteristic(
-        charContainer,
-        characteristic
-      );
-    }
-
-
-  } catch (error) {
-
-    log(
-      "  Characteristics nicht lesbar: " +
-      error.message
-    );
-
-
-    charContainer.innerHTML = `
-      <div style="color:#ff8a8a">
-        Characteristics nicht lesbar:<br>
-        ${escapeHtml(error.message)}
-      </div>
-    `;
-  }
-}
-
-
-/* =========================================================
-   CHARACTERISTIC
-   ========================================================= */
-
-function renderCharacteristic(
-  container,
-  characteristic
-) {
-
-  const uuid =
-    characteristic.uuid;
-
-
-  const properties =
-    characteristic.properties || {};
-
-
-  const propertyNames = [];
-
-
-  if (properties.read)
-    propertyNames.push("READ");
-
-  if (properties.write)
-    propertyNames.push("WRITE");
-
-  if (properties.writeWithoutResponse)
-    propertyNames.push(
-      "WRITE WITHOUT RESPONSE"
-    );
-
-  if (properties.notify)
-    propertyNames.push("NOTIFY");
-
-  if (properties.indicate)
-    propertyNames.push("INDICATE");
-
-
-  const box =
-    document.createElement("div");
-
-
-  box.className =
-    "char";
-
-
-  box.innerHTML = `
-
-    <div class="char-name">
-      Characteristic
-    </div>
-
-    <div class="uuid">
-      ${escapeHtml(uuid)}
-    </div>
-
-    <div class="properties">
-      Eigenschaften:
-      ${propertyNames.length
-        ? propertyNames.join(", ")
-        : "keine"}
-    </div>
-
-    <div style="margin-top:10px">
-
-      ${
-        properties.read
-        ? `
-          <button
-            class="secondary readBtn"
-          >
-            Lesen
-          </button>
-        `
-        : ""
-      }
-
-      ${
-        properties.notify ||
-        properties.indicate
-        ? `
-          <button
-            class="secondary notifyBtn"
-          >
-            Notifications
-          </button>
-        `
-        : ""
-      }
-
-    </div>
-
-    <div
-      class="charValue"
-      style="
-        margin-top:10px;
-        font-family:monospace;
-        color:#9da8b5;
-        word-break:break-all;
-      "
-    >
-      Noch kein Wert
-    </div>
-  `;
-
-
-  container.appendChild(box);
-
-
-  const valueBox =
-    box.querySelector(".charValue");
-
-
-  const readBtn =
-    box.querySelector(".readBtn");
-
-
-  if (readBtn) {
-
-    readBtn.addEventListener(
-      "click",
-      async () => {
-
-        await readCharacteristic(
-          characteristic,
-          valueBox
-        );
-
-      }
-    );
-  }
-
-
-  const notifyBtn =
-    box.querySelector(".notifyBtn");
-
-
-  if (notifyBtn) {
-
-    notifyBtn.addEventListener(
-      "click",
-      async () => {
-
-        await toggleNotifications(
-          characteristic,
-          notifyBtn,
-          valueBox
-        );
-
-      }
-    );
-  }
-}
-
-
-/* =========================================================
-   READ
-   ========================================================= */
-
-async function readCharacteristic(
-  characteristic,
-  output
-) {
-
-  try {
-
-    log(
-      "Lese Characteristic " +
-      characteristic.uuid
-    );
-
-
-    const value =
-      await characteristic.readValue();
-
-
-    const bytes =
-      dataViewToBytes(value);
-
-
-    output.textContent =
-      formatBytes(bytes);
-
-
-    log(
-      "  Wert: " +
-      formatBytes(bytes)
-    );
-
-
-  } catch (error) {
-
-    output.textContent =
-      "Fehler: " +
-      error.message;
-
-
-    log(
-      "  Read Fehler: " +
-      error.message
-    );
-  }
-}
-
-
-/* =========================================================
-   NOTIFICATIONS
-   ========================================================= */
-
-async function toggleNotifications(
-  characteristic,
-  button,
-  output
-) {
-
-  try {
-
-    if (
-      button.dataset.active === "true"
-    ) {
-
-      await characteristic.stopNotifications();
-
-      characteristic.removeEventListener(
-        "characteristicvaluechanged",
-        handleCharacteristicValue
-      );
-
-
-      button.dataset.active =
-        "false";
-
-      button.textContent =
-        "Notifications";
-
-
-      log(
-        "Notifications gestoppt: " +
-        characteristic.uuid
-      );
-
-
-      return;
-    }
-
-
-    await characteristic.startNotifications();
-
-
-    characteristic.addEventListener(
-      "characteristicvaluechanged",
-      handleCharacteristicValue
-    );
-
-
-    button.dataset.active =
-      "true";
-
-
-    button.textContent =
-      "Notifications stoppen";
-
-
-    log(
-      "Notifications gestartet: " +
-      characteristic.uuid
-    );
-
-
-  } catch (error) {
-
-    log(
-      "Notification Fehler: " +
-      error.message
-    );
-  }
-}
-
-
-/* =========================================================
-   CHARACTERISTIC VALUE CHANGED
-   ========================================================= */
-
-function handleCharacteristicValue(event) {
-
-  const characteristic =
-    event.target;
-
-
-  const value =
-    event.target.value;
-
-
-  const bytes =
-    dataViewToBytes(value);
-
-
-  const text =
-    formatBytes(bytes);
-
-
+  log("Verbinde GATT...");
+  server =
+   await device.gatt.connect();
+  log("GATT verbunden.");
+  setConnected(true);
+  await discover();
+ }catch(e){
   log(
-    "Notification " +
-    characteristic.uuid +
-    ": " +
-    text
+   "Verbindungsfehler: "+
+   e.message
   );
-
-
+ }
+}
+/* ================================
+ CONNECTED
+================================ */
+function setConnected(state){
+ const dot =
+ document.getElementById("dot");
+ const connection =
+ document.getElementById("connection");
+ const header =
+ document.getElementById("headerStatus");
+ const ble =
+ document.getElementById("bleState");
+ const connect =
+ document.getElementById("connect");
+ const disconnect =
+ document.getElementById("disconnect");
+ if(state){
+  dot.classList.add("on");
+  connection.textContent =
+   "Verbunden";
+  header.textContent =
+   "BLE verbunden";
+  ble.textContent =
+   "Online";
+  connect.disabled = true;
+  disconnect.disabled = false;
+ }else{
+  dot.classList.remove("on");
+  connection.textContent =
+   "Offline";
+  header.textContent =
+   "Nicht verbunden";
+  ble.textContent =
+   "Offline";
+  connect.disabled = false;
+  disconnect.disabled = true;
+ }
+}
+/* ================================
+ DISCONNECT
+================================ */
+function disconnect(){
+ if(
+  device &&
+  device.gatt &&
+  device.gatt.connected
+ ){
+  device.gatt.disconnect();
+ }
+ setConnected(false);
+ log("Getrennt.");
+}
+function disconnected(){
+ setConnected(false);
+ log("Scooter wurde getrennt.");
+}
+/* ================================
+ BLE DISCOVERY
+================================ */
+async function discover(){
+ if(!server){
+  log("Kein GATT-Server.");
+  return;
+ }
+ const container =
+ document.getElementById("services");
+ container.innerHTML = "";
+ let count = 0;
+ try{
+  const services =
+   await server.getPrimaryServices();
   /*
-    Später können wir hier anhand der echten
-    UUIDs/Bytes die Daten des Scooters
-    automatisch dekodieren.
+   KEINE SPREAD-SYNTAX.
   */
-}
-
-
-/* =========================================================
-   DATAVIEW -> ARRAY
-   ========================================================= */
-
-function dataViewToBytes(dataView) {
-
-  const bytes = [];
-
-
-  if (!dataView) {
-    return bytes;
-  }
-
-
-  for (
-    let i = 0;
-    i < dataView.byteLength;
+  if(
+   services &&
+   typeof services.length === "number"
+  ){
+   count = services.length;
+   for(
+    let i=0;
+    i<services.length;
     i++
-  ) {
-
-    bytes.push(
-      dataView.getUint8(i)
+   ){
+    await inspectService(
+     services[i],
+     container
     );
+   }
+  }else{
+   /*
+    Fallback für iterable Ergebnisse.
+   */
+   for(
+    const service of services
+   ){
+    count++;
+    await inspectService(
+     service,
+     container
+    );
+   }
   }
-
-
-  return bytes;
-}
-
-
-/* =========================================================
-   FORMAT BYTES
-   ========================================================= */
-
-function formatBytes(bytes) {
-
-  return bytes
-    .map(
-      byte =>
-        byte
-          .toString(16)
-          .padStart(2, "0")
-          .toUpperCase()
-    )
-    .join(" ");
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
-function escapeHtml(value) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
-connectBtn.addEventListener(
-  "click",
-  connectBluetooth
-);
-
-
-disconnectBtn.addEventListener(
-  "click",
-  disconnectBluetooth
-);
-
-
-scanBtn.addEventListener(
-  "click",
-  async () => {
-
-    if (!server) {
-
-      log(
-        "Bitte zuerst den Scooter verbinden."
-      );
-
-      return;
-    }
-
-    await discoverServices();
-  }
-);
-
-
-/* =========================================================
-   START
-   ========================================================= */
-
-log(
-  "Scooter BLE Dashboard bereit."
-);
-
-
-if (!navigator.bluetooth) {
-
+  document.getElementById(
+   "serviceCount"
+  ).textContent = count;
   log(
-    "WARNUNG: Web Bluetooth wird in diesem Browser nicht unterstützt."
+   "Services gefunden: "+count
   );
-
+ }catch(e){
+  log(
+   "Service-Fehler: "+
+   e.message
+  );
+  container.innerHTML =
+   "<div class='notice'>"+
+   e.message+
+   "</div>";
+ }
 }
-
+/* ================================
+ SERVICE
+================================ */
+async function inspectService(
+ service,
+ container
+){
+ const box =
+ document.createElement("div");
+ box.className =
+ "service";
+ box.innerHTML =
+ "<strong>Service</strong>"+
+ "<div class='uuid'>"+
+ escapeHtml(service.uuid)+
+ "</div>"+
+ "<div class='chars'>"+
+ "Characteristics werden geladen..."+
+ "</div>";
+ container.appendChild(box);
+ const chars =
+ box.querySelector(".chars");
+ try{
+  const result =
+   await service.getCharacteristics();
+  chars.innerHTML = "";
+  /*
+   Wichtig:
+   Kein [...result]
+  */
+  if(
+   result &&
+   typeof result.length === "number"
+  ){
+   for(
+    let i=0;
+    i<result.length;
+    i++
+   ){
+    renderCharacteristic(
+     result[i],
+     chars
+    );
+   }
+  }else{
+   for(
+    const characteristic of result
+   ){
+    renderCharacteristic(
+     characteristic,
+     chars
+    );
+   }
+  }
+ }catch(e){
+  log(
+   "Characteristics nicht lesbar: "+
+   e.message
+  );
+  chars.innerHTML =
+   "<div style='color:#ff7777'>"+
+   "Characteristics nicht lesbar:<br>"+
+   escapeHtml(e.message)+
+   "</div>";
+ }
+}
+/* ================================
+ CHARACTERISTIC
+================================ */
+function renderCharacteristic(
+ characteristic,
+ container
+){
+ if(!characteristic) return;
+ const box =
+ document.createElement("div");
+ box.className =
+ "char";
+ const props =
+ characteristic.properties || {};
+ let propertyText = "";
+ if(props.read)
+  propertyText += "READ ";
+ if(props.write)
+  propertyText += "WRITE ";
+ if(props.writeWithoutResponse)
+  propertyText += "WRITE_NO_RESPONSE ";
+ if(props.notify)
+  propertyText += "NOTIFY ";
+ if(props.indicate)
+  propertyText += "INDICATE ";
+ box.innerHTML =
+ "<strong>Characteristic</strong>"+
+ "<div class='uuid'>"+
+ escapeHtml(characteristic.uuid)+
+ "</div>"+
+ "<div class='small'>"+
+ propertyText+
+ "</div>";
+ /*
+  READ
+ */
+ if(props.read){
+  const button =
+  document.createElement("button");
+  button.textContent =
+   "📖 Lesen";
+  button.className =
+   "gray";
+  button.onclick =
+   async function(){
+    try{
+     const value =
+      await characteristic.readValue();
+     const bytes =
+      bytesFromView(value);
+     const output =
+      formatBytes(bytes);
+     log(
+      "READ "+
+      characteristic.uuid+
+      ": "+
+      output
+     );
+    }catch(e){
+     log(
+      "READ Fehler: "+
+      e.message
+     );
+    }
+   };
+  box.appendChild(button);
+ }
+ /*
+  NOTIFY
+ */
+ if(
+  props.notify ||
+  props.indicate
+ ){
+  const button =
+  document.createElement("button");
+  button.textContent =
+   "🔔 Notifications";
+  button.className =
+   "gray";
+  button.onclick =
+   async function(){
+    try{
+     await characteristic.startNotifications();
+     characteristic.addEventListener(
+      "characteristicvaluechanged",
+      function(event){
+       const bytes =
+        bytesFromView(
+         event.target.value
+        );
+       log(
+        "NOTIFY "+
+        characteristic.uuid+
+        ": "+
+        formatBytes(bytes)
+       );
+      }
+     );
+     button.textContent =
+      "🔔 Aktiv";
+     button.disabled = true;
+     log(
+      "Notifications gestartet: "+
+      characteristic.uuid
+     );
+    }catch(e){
+     log(
+      "Notification Fehler: "+
+      e.message
+     );
+    }
+   };
+  box.appendChild(button);
+ }
+ container.appendChild(box);
+}
+/* ================================
+ BYTES
+================================ */
+function bytesFromView(view){
+ const result = [];
+ if(!view) return result;
+ for(
+  let i=0;
+  i<view.byteLength;
+  i++
+ ){
+  result.push(
+   view.getUint8(i)
+  );
+ }
+ return result;
+}
+function formatBytes(bytes){
+ return bytes.map(
+  x =>
+   x.toString(16)
+    .padStart(2,"0")
+    .toUpperCase()
+ ).join(" ");
+}
+function escapeHtml(value){
+ return String(value)
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;")
+  .replace(/'/g,"&#039;");
+}
+/* ================================
+ RIDE
+================================ */
+function startRide(){
+ if(rideRunning) return;
+ rideRunning = true;
+ rideStart = Date.now();
+ rideInterval =
+  setInterval(updateRide,1000);
+ log("Fahrt gestartet.");
+}
+function stopRide(){
+ if(!rideRunning) return;
+ rideRunning = false;
+ clearInterval(rideInterval);
+ log("Fahrt beendet.");
+}
+function updateRide(){
+ if(!rideRunning) return;
+ rideSeconds =
+  Math.floor(
+   (Date.now()-rideStart)/1000
+  );
+ const min =
+  Math.floor(rideSeconds/60);
+ const sec =
+  rideSeconds%60;
+ const time =
+  String(min).padStart(2,"0")+
+  ":"+
+  String(sec).padStart(2,"0");
+ document.getElementById(
+  "rideTime"
+ ).textContent = time;
+ document.getElementById(
+  "rideTimer"
+ ).textContent = time;
+}
+/* ================================
+ LOCAL SETTINGS
+================================ */
+function saveSettings(){
+ const settings = {
+  mode:
+   document.getElementById(
+    "modeSelect"
+   ).value,
+  regen:
+   document.getElementById(
+    "regenSelect"
+   ).value,
+  unit:
+   document.getElementById(
+    "unit"
+   ).value,
+  autoReconnect:
+   document.getElementById(
+    "autoReconnect"
+   ).value
+ };
+ localStorage.setItem(
+  "scooterSettings",
+  JSON.stringify(settings)
+ );
+ document.getElementById("mode")
+ .textContent =
+  settings.mode;
+ log("Einstellungen gespeichert.");
+}
+function loadSettings(){
+ try{
+  const raw =
+   localStorage.getItem(
+    "scooterSettings"
+   );
+  if(!raw) return;
+  const s =
+   JSON.parse(raw);
+  if(s.mode)
+   document.getElementById(
+    "modeSelect"
+   ).value=s.mode;
+  if(s.regen)
+   document.getElementById(
+    "regenSelect"
+   ).value=s.regen;
+  if(s.unit)
+   document.getElementById(
+    "unit"
+   ).value=s.unit;
+  if(s.autoReconnect)
+   document.getElementById(
+    "autoReconnect"
+   ).value=s.autoReconnect;
+  document.getElementById("mode")
+   .textContent =
+    s.mode || "--";
+ }catch(e){
+  console.log(e);
+ }
+}
+function clearSettings(){
+ localStorage.removeItem(
+  "scooterSettings"
+ );
+ location.reload();
+}
+/* ================================
+ LOCAL FEATURE
+================================ */
+function localFeature(name){
+ log(
+  name+
+  " wurde in der Oberfläche ausgewählt."
+ );
+ alert(
+  name+
+  " kann erst tatsächlich am Scooter geschaltet werden, "+
+  "wenn das zugehörige BLE-Characteristic identifiziert ist."
+ );
+}
+/* ================================
+ BUTTONS
+================================ */
+document.getElementById("connect")
+ .onclick =
+ connectScooter;
+document.getElementById("disconnect")
+ .onclick =
+ disconnect;
+/* ================================
+ START
+================================ */
+loadSettings();
+log(
+ "Scooter Control bereit."
+);
+if(!navigator.bluetooth){
+ log(
+  "Web Bluetooth nicht verfügbar."
+ );
+}else{
+ log(
+  "Web Bluetooth verfügbar."
+ );
+}
 </script>
-
 </body>
 </html>
